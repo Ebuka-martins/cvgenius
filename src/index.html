@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#6366F1" />
+  <title>CVGenius — AI CV & Cover Letter Builder</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/icons/icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">CV</span>
+        <span>CVGenius</span>
+      </div>
+      <span class="tagline">Tailor your CV. Land the interview.</span>
+    </div>
+  </header>
+
+  <main class="app-main">
+
+    <!-- Step 1: Upload -->
+    <section id="upload-section" class="step active">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <h2>Upload your CV</h2>
+        <p class="step-desc">PDF, DOCX, or TXT. We extract the text to analyze it against the job.</p>
+
+        <div class="dropzone" id="dropzone">
+          <div class="dropzone-icon">📄</div>
+          <p class="dropzone-text">Drop your CV here, or <strong>browse</strong></p>
+          <p class="dropzone-hint">Max 10 MB · PDF, DOCX, DOC, TXT</p>
+          <input type="file" id="cv-input" accept=".pdf,.docx,.doc,.txt" hidden />
+        </div>
+        <p id="file-name" class="file-name"></p>
+      </div>
+    </section>
+
+    <!-- Step 2: Job description -->
+    <section id="job-section" class="step">
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <h2>Paste the job description</h2>
+        <p class="step-desc">Paste the full job posting. The more detail, the better the analysis.</p>
+        <textarea id="job-input" rows="10" placeholder="Paste the job description here…"></textarea>
+        <button id="analyze-btn" class="btn btn-primary" disabled>
+          Analyze my CV →
+        </button>
+      </div>
+    </section>
+
+    <!-- Step 3: Results -->
+    <section id="results-section" class="step">
+      <div class="step-card">
+        <div class="results-header">
+          <div class="score-ring" id="score-ring">
+            <span id="score-value">—</span>
+          </div>
+          <div>
+            <h2>Match Analysis</h2>
+            <p id="summary-text" class="summary-text"></p>
+          </div>
+        </div>
+
+        <div class="results-grid">
+          <div class="result-block">
+            <h3>✅ Matching Skills</h3>
+            <ul id="matching-list"></ul>
+          </div>
+          <div class="result-block">
+            <h3>⚠️ Missing Skills</h3>
+            <ul id="missing-list"></ul>
+          </div>
+          <div class="result-block">
+            <h3>💪 Strengths</h3>
+            <ul id="strengths-list"></ul>
+          </div>
+          <div class="result-block">
+            <h3>🔧 Improvements</h3>
+            <ul id="improvements-list"></ul>
+          </div>
+        </div>
+
+        <div class="keywords-block">
+          <h3>🔑 Keywords to add</h3>
+          <div id="keywords-list" class="keyword-chips"></div>
+        </div>
+
+        <div class="actions">
+          <button id="improve-btn" class="btn btn-primary">
+            ✨ Improve my CV
+          </button>
+          <button id="cover-letter-btn" class="btn btn-primary">
+            Generate Cover Letter →
+          </button>
+          <button id="reset-btn" class="btn btn-ghost">
+            Start over
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 4: Improved resume -->
+    <section id="improved-section" class="step">
+      <div class="step-card">
+        <h2>Your improved CV</h2>
+        <p class="step-desc">Tailored to this job. Edit before downloading.</p>
+        <textarea id="improved-output" rows="22" style="font-family: 'Courier New', monospace; font-size: 0.85rem; line-height: 1.6;"></textarea>
+        <div class="actions">
+          <button id="download-pdf" class="btn btn-primary">⬇ Download PDF</button>
+          <button id="download-docx" class="btn btn-ghost">⬇ Download Word (.docx)</button>
+          <button id="back-to-results-2" class="btn btn-ghost">← Back to analysis</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 5: Cover letter -->
+    <section id="cover-section" class="step">
+      <div class="step-card">
+        <h2>Your cover letter</h2>
+        <p class="step-desc">Tailored to this job. Edit before sending.</p>
+        <div class="cover-letter-output" id="cover-output"></div>
+        <div class="actions">
+          <button id="copy-btn" class="btn btn-primary">Copy to clipboard</button>
+          <button id="download-btn" class="btn btn-ghost">Download as .txt</button>
+          <button id="back-to-results" class="btn btn-ghost">← Back to analysis</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script type="module" src="/js/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(console.warn);
+      });
+    }
+  </script>
+</body>
+</html>
