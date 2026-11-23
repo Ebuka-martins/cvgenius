@@ -65,8 +65,6 @@ app.post('/api/analyze', upload.single('cv'), async (req, res) => {
 
     fs.unlinkSync(req.file.path);
 
-    // Return the full CV text so the frontend can call /api/improve-resume
-    // and /api/cover-letter without needing to re-upload
     res.json({
       ok: true,
       cvText,
@@ -83,7 +81,6 @@ app.post('/api/analyze', upload.single('cv'), async (req, res) => {
 
 // ---------------------------------------------------------------------------
 // POST /api/cover-letter
-// Accepts CV text + job description → returns generated cover letter
 // ---------------------------------------------------------------------------
 app.post('/api/cover-letter', async (req, res) => {
   const { cvText, jobDescription } = req.body;
@@ -106,7 +103,6 @@ app.post('/api/cover-letter', async (req, res) => {
 
 // ---------------------------------------------------------------------------
 // POST /api/improve-resume
-// Accepts CV text + job description → returns rewritten CV
 // ---------------------------------------------------------------------------
 app.post('/api/improve-resume', async (req, res) => {
   const { cvText, jobDescription } = req.body;
@@ -129,7 +125,6 @@ app.post('/api/improve-resume', async (req, res) => {
 
 // ---------------------------------------------------------------------------
 // POST /api/download-resume
-// Accepts improved text + format (pdf | docx) → returns downloadable file
 // ---------------------------------------------------------------------------
 app.post('/api/download-resume', async (req, res) => {
   const { text, format } = req.body;
@@ -148,12 +143,17 @@ app.post('/api/download-resume', async (req, res) => {
     }
   } catch (err) {
     console.error('Download error:', err);
-    res.status(500).json({ error: err.message || 'Download failed.' });
+    // Only send JSON if headers haven't been sent yet
+    if (!res.headersSent) {
+      res.status(500).json({ error: err.message || 'Download failed.' });
+    } else {
+      res.end();
+    }
   }
 });
 
 // ---------------------------------------------------------------------------
-// DOCX generation — using the `docx` library (pure JS, no system deps)
+// DOCX generation — using the `docx` library
 // ---------------------------------------------------------------------------
 async function sendDocx(res, text) {
   const { Document, Packer, Paragraph, TextRun, HeadingLevel } = require('docx');
@@ -170,7 +170,6 @@ async function sendDocx(res, text) {
       continue;
     }
 
-    // ALL CAPS line → section heading
     const isHeading = /^[A-Z][A-Z\s&/,.'-]{2,}$/.test(trimmed) && trimmed.length < 60;
 
     if (isHeading) {
@@ -182,7 +181,6 @@ async function sendDocx(res, text) {
         })
       );
     } else if (/^[•\-\*]\s/.test(trimmed)) {
-      // Bullet line
       children.push(
         new Paragraph({
           children: [new TextRun({ text: trimmed.replace(/^[•\-\*]\s+/, ''), size: 22 })],
@@ -218,13 +216,11 @@ async function sendDocx(res, text) {
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
   );
   res.setHeader('Content-Disposition', 'attachment; filename="improved-resume.docx"');
-  res.send(buffer);
+  res.end(buffer, 'binary');
 }
 
 // ---------------------------------------------------------------------------
 // PDF generation — Puppeteer renders HTML → PDF
-// If Puppeteer isn't installed or fails on Heroku, falls back to a simple
-// HTML-to-PDF via LibreOffice if available.
 // ---------------------------------------------------------------------------
 async function sendPdf(res, text) {
   const escapeHtml = (s) =>
@@ -264,9 +260,7 @@ async function sendPdf(res, text) {
   try {
     puppeteer = require('puppeteer');
   } catch (e) {
-    throw new Error(
-      'PDF generation requires Puppeteer. Install it with "npm install puppeteer".'
-    );
+    throw new Error('PDF generation requires Puppeteer. Run: npm install puppeteer');
   }
 
   const browser = await puppeteer.launch({
@@ -277,15 +271,27 @@ async function sendPdf(res, text) {
   try {
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'networkidle0' });
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      margin: { top: '20mm', bottom: '20mm', left: '20mm', right: '20mm' }
+
+    // Generate PDF as a Buffer (not Uint8Array)
+    const pdfBuffer = Buffer.from(
+      await page.pdf({
+        format: 'A4',
+        printBackground: true,
+        margin: { top: '20mm', bottom: '20mm', left: '20mm', right: '20mm' }
+      })
+    );
+
+    // CRITICAL: send as raw binary with complete headers
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Length': pdfBuffer.length,
+      'Content-Transfer-Encoding': 'binary',
+      'Content-Disposition': 'attachment; filename="improved-resume.pdf"',
+      'Cache-Control': 'no-store'
     });
 
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename="improved-resume.pdf"');
-    res.send(pdfBuffer);
+    res.end(pdfBuffer, 'binary');
+
   } finally {
     await browser.close();
   }
@@ -296,7 +302,6 @@ app.listen(PORT, () => {
   console.log(`CVGenius running at http://localhost:${PORT}`);
   console.log(`Groq API key: ${process.env.GROQ_API_KEY ? '✓ Set' : '✗ NOT SET'}`);
 
-  // Warn if optional libraries are missing
   try {
     require.resolve('docx');
   } catch {

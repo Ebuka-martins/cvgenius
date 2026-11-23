@@ -1,10 +1,10 @@
-const CACHE_NAME = 'cvgenius-v1';
+const CACHE_NAME = 'cvgenius-v3';
 const ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/css/style.css',
-  '/js/app.js',
+  '/css/style.css?v=3',
+  '/js/app.js?v=3',
   '/icons/icon-192.png',
   '/icons/icon-512.png'
 ];
@@ -36,8 +36,17 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
+  // Only handle http: and https: — never chrome-extension:, data:, file:
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+    return;
+  }
+
   // Never cache API calls — they need live server responses
   if (url.pathname.startsWith('/api/')) {
+    return;
+  }
+
+  if (event.request.method !== 'GET') {
     return;
   }
 
@@ -46,9 +55,11 @@ self.addEventListener('fetch', (event) => {
       if (cached) return cached;
 
       return fetch(event.request).then((response) => {
-        if (response.ok && event.request.method === 'GET') {
+        if (response.ok) {
           const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, clone).catch(() => {});
+          });
         }
         return response;
       });

@@ -14,18 +14,18 @@ let state = {
 // ---------------------------------------------------------------------------
 // DOM
 // ---------------------------------------------------------------------------
-const uploadSection  = document.getElementById('upload-section');
-const jobSection     = document.getElementById('job-section');
-const resultsSection = document.getElementById('results-section');
+const uploadSection   = document.getElementById('upload-section');
+const jobSection      = document.getElementById('job-section');
+const resultsSection  = document.getElementById('results-section');
 const improvedSection = document.getElementById('improved-section');
-const coverSection   = document.getElementById('cover-section');
+const coverSection    = document.getElementById('cover-section');
 
-const dropzone    = document.getElementById('dropzone');
-const cvInput     = document.getElementById('cv-input');
-const fileName    = document.getElementById('file-name');
-const jobInput    = document.getElementById('job-input');
-const analyzeBtn  = document.getElementById('analyze-btn');
-const toast       = document.getElementById('toast');
+const dropzone   = document.getElementById('dropzone');
+const cvInput    = document.getElementById('cv-input');
+const fileName   = document.getElementById('file-name');
+const jobInput   = document.getElementById('job-input');
+const analyzeBtn = document.getElementById('analyze-btn');
+const toast      = document.getElementById('toast');
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -209,6 +209,8 @@ document.getElementById('improve-btn').addEventListener('click', async () => {
 // ---------------------------------------------------------------------------
 // Step 4 → downloads
 // ---------------------------------------------------------------------------
+
+// PDF download
 document.getElementById('download-pdf').addEventListener('click', async () => {
   const text = document.getElementById('improved-output').value.trim();
   if (!text) return showToast('Nothing to download.');
@@ -222,12 +224,29 @@ document.getElementById('download-pdf').addEventListener('click', async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text, format: 'pdf' })
     });
+
+    // If the server errored, it returns JSON. If it succeeded, it returns a binary PDF.
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.error || 'PDF download failed.');
     }
+
+    // Verify we actually got a PDF back
+    const contentType = res.headers.get('content-type') || '';
+    if (!contentType.includes('application/pdf')) {
+      throw new Error('Server did not return a PDF. Check server logs.');
+    }
+
     const blob = await res.blob();
+
+    // Sanity check: PDFs start with "%PDF-"
+    const head = await blob.slice(0, 5).text();
+    if (!head.startsWith('%PDF-')) {
+      throw new Error('Downloaded file is not a valid PDF. Check server logs.');
+    }
+
     triggerDownload(blob, 'improved-resume.pdf');
+
   } catch (err) {
     console.error(err);
     showToast(err.message);
@@ -236,6 +255,7 @@ document.getElementById('download-pdf').addEventListener('click', async () => {
   }
 });
 
+// DOCX download
 document.getElementById('download-docx').addEventListener('click', async () => {
   const text = document.getElementById('improved-output').value.trim();
   if (!text) return showToast('Nothing to download.');
