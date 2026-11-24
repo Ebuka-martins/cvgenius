@@ -18,7 +18,7 @@
     document.documentElement.setAttribute('data-theme', t);
   })();
 </script>
-  <link rel="stylesheet" href="/css/style.css?v=5" />
+  <link rel="stylesheet" href="/css/style.css?v=6" />
 </head>
 <body>
 
@@ -43,7 +43,10 @@
         <p class="step-desc">PDF, DOCX, or TXT. We extract the text to analyze it against the job.</p>
 
         <div class="dropzone" id="dropzone">
-          <div class="dropzone-icon">📄</div>
+          <div class="dropzone-icon typographic-icon">
+            <span class="mono-label">CV</span>
+            <span class="mono-sub">↓</span>
+          </div>
           <p class="dropzone-text">Drop your CV here, or <strong>browse</strong></p>
           <p class="dropzone-hint">Max 10 MB · PDF, DOCX, DOC, TXT</p>
           <input type="file" id="cv-input" accept=".pdf,.docx,.doc,.txt" hidden />
@@ -148,7 +151,7 @@
 
   <div id="toast" class="toast" hidden></div>
 
-  <script type="module" src="/js/app.js?v=5"></script>
+  <script type="module" src="/js/app.js?v=6"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
