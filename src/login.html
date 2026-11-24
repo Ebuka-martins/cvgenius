@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1A1614" />
+  <title>Sign in — CVGenius</title>
+  <link rel="icon" href="/icons/icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&display=swap" rel="stylesheet" />
+
+  <script>
+    (function () {
+      var t = localStorage.getItem('cvgenius-theme');
+      if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+
+  <style>
+    :root {
+      --ink: #1A1614;
+      --paper: #F5F0E6;
+      --paper-2: #EDE6D6;
+      --cream: #FBF8F1;
+      --rule: #D4C9B3;
+      --accent: #B84A2E;
+      --accent-2: #8F3820;
+      --text: #1A1614;
+      --text-muted: #6B5F54;
+    }
+    [data-theme="dark"] {
+      --ink: #F0E9DC;
+      --paper: #1C1815;
+      --paper-2: #252019;
+      --cream: #221D17;
+      --rule: #3D352C;
+      --accent: #E07A54;
+      --accent-2: #F09A78;
+      --text: #F0E9DC;
+      --text-muted: #A69A88;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--paper);
+      color: var(--text);
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      position: relative;
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+
+    /* Paper grain */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          transparent 0px,
+          transparent 2px,
+          color-mix(in srgb, var(--ink) 1.5%, transparent) 2px,
+          color-mix(in srgb, var(--ink) 1.5%, transparent) 3px
+        );
+      opacity: 0.6;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--cream);
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      padding: 44px 36px;
+      box-shadow: 0 4px 16px rgba(26, 22, 20, 0.08);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 32px;
+      justify-content: center;
+    }
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 2px;
+      background: var(--ink);
+      color: var(--paper);
+      display: grid;
+      place-items: center;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      box-shadow: 3px 3px 0 var(--accent);
+    }
+    .brand-name {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      font-style: italic;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      font-style: italic;
+      text-align: center;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+    .subtitle {
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 30px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 4px;
+      border: 1px solid var(--rule);
+      background: var(--paper);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input:focus {
+      outline: none;
+      border-color: var(--ink);
+      box-shadow: 3px 3px 0 color-mix(in srgb, var(--accent) 30%, transparent);
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 14px;
+      border-radius: 2px;
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      color: var(--paper);
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 var(--accent);
+      transition: all 0.2s;
+    }
+    button[type="submit"]:hover:not(:disabled) {
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0 var(--accent);
+    }
+    button[type="submit"]:active:not(:disabled) {
+      transform: translate(0, 0);
+      box-shadow: 2px 2px 0 var(--accent);
+    }
+    button[type="submit"]:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .error {
+      display: none;
+      background: color-mix(in srgb, var(--accent) 12%, transparent);
+      color: var(--accent-2);
+      border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+      border-radius: 4px;
+      padding: 12px 14px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .error.visible { display: block; }
+
+    .hint {
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--rule);
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="brand">
+      <span class="brand-icon">CV</span>
+      <span class="brand-name">CVGenius</span>
+    </div>
+
+    <h1>Welcome back</h1>
+    <p class="subtitle">Sign in to continue to your workspace.</p>
+
+    <div class="error" id="error-msg"></div>
+
+    <form id="login-form" novalidate>
+      <label for="username">Username</label>
+      <input type="text" id="username" placeholder="Enter your username" autocomplete="username" autocapitalize="none" spellcheck="false" required />
+
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" required />
+
+      <button type="submit" id="submit-btn">Sign in</button>
+    </form>
+
+    <p class="hint">Your documents never leave your device.</p>
+  </main>
+
+  <script>
+    // ============================================================
+    //  CHANGE THESE CREDENTIALS TO WHATEVER YOU WANT
+    // ============================================================
+    const VALID_USERNAME = 'admin';
+    const VALID_PASSWORD = 'cvgenius2026';
+
+    // If already logged in, go straight to the app
+    if (sessionStorage.getItem('cvgenius_logged_in') === 'true') {
+      window.location.replace('/');
+    }
+
+    const form = document.getElementById('login-form');
+    const errorEl = document.getElementById('error-msg');
+    const btn = document.getElementById('submit-btn');
+    const userInput = document.getElementById('username');
+    const passInput = document.getElementById('password');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      errorEl.classList.remove('visible');
+
+      const u = userInput.value.trim();
+      const p = passInput.value;
+
+      if (!u || !p) {
+        errorEl.textContent = 'Please enter both username and password.';
+        errorEl.classList.add('visible');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Signing in…';
+
+      setTimeout(() => {
+        if (u === VALID_USERNAME && p === VALID_PASSWORD) {
+          sessionStorage.setItem('cvgenius_logged_in', 'true');
+          sessionStorage.setItem('cvgenius_username', u);
+          window.location.replace('/');
+        } else {
+          errorEl.textContent = 'Wrong username or password.';
+          errorEl.classList.add('visible');
+          btn.disabled = false;
+          btn.textContent = 'Sign in';
+          passInput.value = '';
+          passInput.focus();
+        }
+      }, 300);
+    });
+
+    userInput.focus();
+  </script>
+</body>
+</html>
