@@ -18,7 +18,7 @@
     document.documentElement.setAttribute('data-theme', t);
   })();
 </script>
-  <link rel="stylesheet" href="/css/style.css?v=6" />
+  <link rel="stylesheet" href="/css/style.css?v=8" />
 </head>
 <body>
 
@@ -141,7 +141,8 @@
         <div class="cover-letter-output" id="cover-output"></div>
         <div class="actions">
           <button id="copy-btn" class="btn btn-primary">Copy to clipboard</button>
-          <button id="download-btn" class="btn btn-ghost">Download as .txt</button>
+          <button id="cover-download-pdf" class="btn btn-primary">⬇ Download PDF</button>
+          <button id="cover-download-docx" class="btn btn-ghost">⬇ Download Word (.docx)</button>
           <button id="back-to-results" class="btn btn-ghost">← Back to analysis</button>
         </div>
       </div>
@@ -151,7 +152,7 @@
 
   <div id="toast" class="toast" hidden></div>
 
-  <script type="module" src="/js/app.js?v=6"></script>
+  <script type="module" src="/js/app.js?v=8"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

@@ -343,10 +343,72 @@ document.getElementById('copy-btn').addEventListener('click', async () => {
   }
 });
 
-document.getElementById('download-btn').addEventListener('click', () => {
+// Cover letter — download PDF
+document.getElementById('cover-download-pdf').addEventListener('click', async () => {
   const text = state.coverLetter || document.getElementById('cover-output').textContent;
-  const blob = new Blob([text], { type: 'text/plain' });
-  triggerDownload(blob, 'cover-letter.txt');
+  if (!text) return showToast('Nothing to download.');
+
+  const btn = document.getElementById('cover-download-pdf');
+  setLoading(btn, true, 'Generating PDF…');
+
+  try {
+    const res = await fetch('/api/download-resume', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, format: 'pdf' })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'PDF download failed.');
+    }
+
+    const contentType = res.headers.get('content-type') || '';
+    if (!contentType.includes('application/pdf')) {
+      throw new Error('Server did not return a PDF.');
+    }
+
+    const blob = await res.blob();
+    const head = await blob.slice(0, 5).text();
+    if (!head.startsWith('%PDF-')) {
+      throw new Error('Downloaded file is not a valid PDF.');
+    }
+
+    triggerDownload(blob, 'cover-letter.pdf');
+  } catch (err) {
+    console.error(err);
+    showToast(err.message);
+  } finally {
+    setLoading(btn, false);
+  }
+});
+
+// Cover letter — download DOCX
+document.getElementById('cover-download-docx').addEventListener('click', async () => {
+  const text = state.coverLetter || document.getElementById('cover-output').textContent;
+  if (!text) return showToast('Nothing to download.');
+
+  const btn = document.getElementById('cover-download-docx');
+  setLoading(btn, true, 'Generating Word file…');
+
+  try {
+    const res = await fetch('/api/download-resume', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, format: 'docx' })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'DOCX download failed.');
+    }
+    const blob = await res.blob();
+    triggerDownload(blob, 'cover-letter.docx');
+  } catch (err) {
+    console.error(err);
+    showToast(err.message);
+  } finally {
+    setLoading(btn, false);
+  }
 });
 
 // ---------------------------------------------------------------------------
